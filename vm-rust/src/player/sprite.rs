@@ -1,4 +1,4 @@
-use super::{cast_lib::CastMemberRef, script_ref::ScriptInstanceRef};
+use super::{cast_lib::CastMemberRef, script_ref::ScriptInstanceRef, ScriptError};
 
 #[allow(dead_code)]
 #[derive(Clone, PartialEq, Debug)]
@@ -8,12 +8,15 @@ pub enum ColorRef {
 }
 
 impl ColorRef {
-  pub fn from_hex(hex: &str) -> ColorRef {
+  pub fn from_hex(hex: &str) -> Result<ColorRef, ScriptError> {
     let hex = hex.trim_start_matches('#');
+    if hex.len() < 6 {
+      return Err(ScriptError::new(format!("Invalid hex string {}, must be 6 characters", hex)));
+    }
     let r = u8::from_str_radix(&hex[0..2], 16).unwrap();
     let g = u8::from_str_radix(&hex[2..4], 16).unwrap();
     let b = u8::from_str_radix(&hex[4..6], 16).unwrap();
-    ColorRef::Rgb(r, g, b)
+    Ok(ColorRef::Rgb(r, g, b))
   }
 }
 

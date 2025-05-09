@@ -1,7 +1,7 @@
 use itertools::Itertools;
 
 use crate::{director::lingo::datum::{datum_bool, Datum, DatumType}, player::{allocator::ScriptInstanceAllocatorTrait, bitmap::bitmap::{get_system_default_palette, Bitmap, BuiltInPalette, PaletteRef}, compare::sort_datums, datum_formatting::format_datum, eval::eval_lingo, geometry::IntRect, reserve_player_mut, reserve_player_ref, sprite::{ColorRef, CursorRef}, xtra::manager::{create_xtra_instance, is_xtra_registered}, DatumRef, DirPlayer, ScriptError}};
-
+use crate::director::enums::MemberType::Script;
 use super::datum_handlers::{list_handlers::ListDatumHandlers, player_call_datum_handler, prop_list::{PropListDatumHandlers, PropListUtils}, rect::RectUtils};
 
 
@@ -446,6 +446,9 @@ impl TypeHandlers {
         let first_arg = player.get_datum(&args[0]);
         if first_arg.is_string() {
           let hex_str = first_arg.string_value()?.replace("#", "");
+          if hex_str.len() < 6 {
+            return Err(ScriptError::new(format!("Invalid rgb string: {}, must be 6 characters", hex_str)));
+          }
           let r = u8::from_str_radix(&hex_str[0..2], 16).unwrap();
           let g = u8::from_str_radix(&hex_str[2..4], 16).unwrap();
           let b = u8::from_str_radix(&hex_str[4..6], 16).unwrap();
